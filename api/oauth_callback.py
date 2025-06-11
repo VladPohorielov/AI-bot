@@ -2,82 +2,53 @@
 """
 Vercel serverless function for handling Google OAuth callbacks
 """
-import os
-import sys
-import asyncio
-from urllib.parse import parse_qs, urlencode
-import json
 
-# Add parent directory to path to import from services
-sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+from flask import Flask, request
 
-try:
-    from services.google_oauth import GoogleOAuthService
-except ImportError:
-    # Fallback for Vercel environment
-    GoogleOAuthService = None
+app = Flask(__name__)
 
-def handler(request):
-    """
-    Vercel serverless function handler for OAuth callback
-    """
-    # Get query parameters
-    query_params = parse_qs(request.query_string.decode()) if hasattr(request, 'query_string') else {}
+@app.route('/')
+def oauth_callback():
+    """Handle OAuth callback from Google"""
     
-    # Handle different request formats (Vercel WSGI/ASGI)
-    if hasattr(request, 'args'):
-        # Flask-like request object
-        code = request.args.get('code')
-        state = request.args.get('state') 
-        error = request.args.get('error')
-    else:
-        # Raw query parameters
-        code = query_params.get('code', [None])[0]
-        state = query_params.get('state', [None])[0]
-        error = query_params.get('error', [None])[0]
+    # Get parameters from request
+    code = request.args.get('code')
+    state = request.args.get('state')
+    error = request.args.get('error')
     
     # Handle OAuth errors
     if error:
-        return {
-            'statusCode': 400,
-            'headers': {'Content-Type': 'text/html; charset=utf-8'},
-            'body': f"""
-            <html>
-                <body style="font-family: Arial; text-align: center; padding: 50px;">
-                    <h2>❌ Помилка авторизації</h2>
-                    <p>Сталася помилка: {error}</p>
-                    <p>Спробуйте ще раз або зверніться до підтримки.</p>
-                    <a href="https://t.me/your_bot_username">← Повернутись до бота</a>
-                </body>
-            </html>
-            """
-        }
+        return f"""
+        <html>
+            <body style="font-family: Arial; text-align: center; padding: 50px;">
+                <h2>❌ Помилка авторизації</h2>
+                <p>Сталася помилка: {error}</p>
+                <p>Спробуйте ще раз або зверніться до підтримки.</p>
+                <a href="https://t.me/briefly_calendar_bot">← Повернутись до бота</a>
+            </body>
+        </html>
+        """, 400
     
     # Validate required parameters
-    if not code or not state:
-        return {
-            'statusCode': 400,
-            'headers': {'Content-Type': 'text/html; charset=utf-8'},
-            'body': """
-            <html>
-                <body style="font-family: Arial; text-align: center; padding: 50px;">
-                    <h2>❌ Невірний запит</h2>
-                    <p>Відсутні необхідні параметри авторизації.</p>
-                    <a href="https://t.me/your_bot_username">← Повернутись до бота</a>
-                </body>
-            </html>
-            """
-        }
+    if not code:
+        return """
+        <html>
+            <body style="font-family: Arial; text-align: center; padding: 50px;">
+                <h2>❌ Невірний запит</h2>
+                <p>Відсутні необхідні параметри авторизації.</p>
+                <a href="https://t.me/briefly_calendar_bot">← Повернутись до бота</a>
+            </body>
+        </html>
+        """, 400
     
-    # In production, you would handle the OAuth flow here
-    # For now, return success page with instructions
+    # Success page
     success_page = f"""
     <html>
         <body style="font-family: Arial; text-align: center; padding: 50px;">
             <h2>✅ Авторизація успішна!</h2>
             <p>Google Calendar авторизацію отримано.</p>
-            <p><strong>Код авторизації:</strong> <code>{code[:20]}...</code></p>
-            <p><strong>State:</strong> <code>{state}</code></p>
+            <p><strong>Код авторизації:</strong> <code id="auth-code">{code[:20]}...</code></p>
+            {f"<p><strong>State:</strong> <code>{state}</code></p>" if state else ""}
             
             <div style="background: #f0f8ff; padding: 20px; margin: 20px 0; border-radius: 10px;">
                 <h3>📋 Наступні кроки:</h3>
@@ -89,7 +60,7 @@ def handler(request):
             </div>
             
             <p>
-                <a href="https://t.me/your_bot_username" style="
+                <a href="https://t.me/briefly_calendar_bot" style="
                     background: #007bff; 
                     color: white; 
                     padding: 10px 20px; 
@@ -99,19 +70,6 @@ def handler(request):
                     margin-top: 20px;
                 ">🤖 Повернутись до бота</a>
             </p>
-            
-            <script>
-                // Auto close window after 5 seconds
-                setTimeout(() => {{
-                    window.close();
-                }}, 5000);
-                
-                // Copy code to clipboard
-                function copyCode() {{
-                    navigator.clipboard.writeText('{code}');
-                    alert('Код скопійовано у буфер обміну!');
-                }}
-            </script>
             
             <p>
                 <button onclick="copyCode()" style="
@@ -125,47 +83,35 @@ def handler(request):
             </p>
             
             <small>Це вікно автоматично закриється через 5 секунд</small>
+            
+            <script>
+                // Auto close window after 5 seconds
+                setTimeout(() => {{
+                    window.close();
+                }}, 5000);
+                
+                // Copy code to clipboard
+                function copyCode() {{
+                    navigator.clipboard.writeText('{code}').then(() => {{
+                        alert('Код скопійовано у буфер обміну!');
+                    }}).catch(() => {{
+                        // Fallback for older browsers
+                        const textArea = document.createElement('textarea');
+                        textArea.value = '{code}';
+                        document.body.appendChild(textArea);
+                        textArea.select();
+                        document.execCommand('copy');
+                        document.body.removeChild(textArea);
+                        alert('Код скопійовано у буфер обміну!');
+                    }});
+                }}
+            </script>
         </body>
     </html>
     """
     
-    return {
-        'statusCode': 200,
-        'headers': {'Content-Type': 'text/html; charset=utf-8'},
-        'body': success_page
-    }
+    return success_page
 
-# For Flask compatibility (local development)
-try:
-    from flask import Flask, request as flask_request
-    
-    app = Flask(__name__)
-    
-    @app.route('/api/oauth_callback', methods=['GET'])
-    def oauth_callback():
-        return handler(flask_request)
-    
-    @app.route('/oauth/callback', methods=['GET'])  
-    def oauth_callback_alt():
-        return handler(flask_request)
-        
-    if __name__ == '__main__':
-        app.run(debug=True, port=8080)
-        
-except ImportError:
-    # Flask not available in Vercel environment
-    pass
-
-# Export for Vercel
-def app(environ, start_response):
-    """WSGI application for Vercel"""
-    from werkzeug.wrappers import Request
-    request = Request(environ)
-    
-    response = handler(request)
-    
-    status = f"{response['statusCode']} OK"
-    headers = [(k, v) for k, v in response['headers'].items()]
-    
-    start_response(status, headers)
-    return [response['body'].encode('utf-8')] 
+# For local development
+if __name__ == '__main__':
+    app.run(debug=True, port=8080) 
