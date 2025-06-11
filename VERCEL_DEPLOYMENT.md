@@ -39,8 +39,7 @@ ENCRYPTION_KEY=ваш_32_byte_encryption_key
 2. Редагувати OAuth 2.0 Client ID
 3. **Authorized redirect URIs** додати:
    ```
-   https://your-app-name.vercel.app/api/oauth_callback
-   https://your-app-name.vercel.app/oauth/callback
+   https://ai-bot-tau-seven.vercel.app/oauth_callback.html
    ```
 
 ## 🔗 URL Structure

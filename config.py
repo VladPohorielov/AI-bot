@@ -140,7 +140,7 @@ OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
 # Google Calendar OAuth configuration
 GOOGLE_CLIENT_ID = os.getenv("GOOGLE_CLIENT_ID")
 GOOGLE_CLIENT_SECRET = os.getenv("GOOGLE_CLIENT_SECRET")
-GOOGLE_REDIRECT_URI = os.getenv("GOOGLE_REDIRECT_URI", "http://localhost:8080/oauth/callback")
+GOOGLE_REDIRECT_URI = os.getenv("GOOGLE_REDIRECT_URI", "https://ai-bot-tau-seven.vercel.app/oauth_callback.html")
 
 # Google Calendar API scopes
 GOOGLE_SCOPES = [

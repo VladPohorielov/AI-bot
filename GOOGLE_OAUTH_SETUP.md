@@ -21,8 +21,9 @@
    - Application type: **Web application**
    - Name: `Telegram Calendar Bot`
    - Authorized redirect URIs:
-     - `http://localhost:8080/oauth/callback`
-     - `http://127.0.0.1:8080/oauth/callback`
+     - `https://ai-bot-tau-seven.vercel.app/oauth_callback.html`
+
+- `http://localhost:8080/oauth/callback` (для локального тестування)
 
 ## Крок 3: Отримати credentials
 
@@ -50,7 +51,7 @@
 ```env
 GOOGLE_CLIENT_ID=ваш_реальний_client_id
 GOOGLE_CLIENT_SECRET=ваш_реальний_client_secret
-GOOGLE_REDIRECT_URI=http://localhost:8080/oauth/callback
+GOOGLE_REDIRECT_URI=https://ai-bot-tau-seven.vercel.app/oauth_callback.html
 ```
 
 ## Крок 6: Запустити OAuth сервер
@@ -90,6 +91,7 @@ python services/oauth_server.py
 ## Для продакшена
 
 Коли застосунок готовий до продакшена:
+
 1. Налаштувати домен замість localhost
 2. Опублікувати застосунок у Google Console
 3. Пройти процес верифікації Google (якщо потрібно)

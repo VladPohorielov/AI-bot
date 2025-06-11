@@ -61,7 +61,7 @@ OPENAI_API_KEY=your_openai_api_key
 # Google Calendar OAuth
 GOOGLE_CLIENT_ID=your_google_client_id
 GOOGLE_CLIENT_SECRET=your_google_client_secret
-GOOGLE_REDIRECT_URI=http://localhost:8080/oauth/callback
+GOOGLE_REDIRECT_URI=https://ai-bot-tau-seven.vercel.app/oauth_callback.html
 
 # Security
 ENCRYPTION_KEY=your_32_byte_encryption_key
