@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <title>Calendar Connected</title>
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        text-align: center;
+        padding: 50px;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        margin: 0;
+        min-height: 100vh;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-direction: column;
+      }
+
+      .container {
+        background: rgba(255, 255, 255, 0.95);
+        padding: 40px;
+        border-radius: 15px;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+        color: #333;
+        max-width: 500px;
+      }
+
+      .success {
+        color: #28a745;
+        font-size: 28px;
+        margin-bottom: 20px;
+        font-weight: bold;
+      }
+
+      .description {
+        font-size: 16px;
+        margin-bottom: 30px;
+        line-height: 1.5;
+      }
+
+      .telegram-btn {
+        background: #0088cc;
+        color: white;
+        padding: 12px 25px;
+        text-decoration: none;
+        border-radius: 25px;
+        font-size: 16px;
+        font-weight: bold;
+        display: inline-block;
+        transition: background 0.3s;
+      }
+
+      .telegram-btn:hover {
+        background: #006699;
+      }
+
+      .auto-close {
+        margin-top: 20px;
+        font-size: 14px;
+        color: #666;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <div class="success">✅ Calendar Connected!</div>
+      <div class="description">
+        Your Google Calendar has been successfully connected to the Briefly bot.
+        You can now create calendar events directly from Telegram.
+      </div>
+      <a href="https://t.me/briefly_calendar_bot" class="telegram-btn">
+        🤖 Return to Bot
+      </a>
+      <div class="auto-close">
+        This window will close automatically in
+        <span id="countdown">5</span> seconds
+      </div>
+    </div>
+
+    <script>
+      // Auto close window after 5 seconds
+      let countdown = 5;
+      const countdownElement = document.getElementById("countdown");
+
+      const timer = setInterval(() => {
+        countdown--;
+        countdownElement.textContent = countdown;
+
+        if (countdown <= 0) {
+          clearInterval(timer);
+          window.close();
+        }
+      }, 1000);
+
+      // Try to close immediately if opened as popup
+      setTimeout(() => {
+        try {
+          window.close();
+        } catch (e) {
+          // If can't close, just redirect to bot
+          // window.location.href = 'https://t.me/briefly_calendar_bot';
+        }
+      }, 2000);
+    </script>
+  </body>
+</html>
