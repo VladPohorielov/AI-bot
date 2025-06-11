@@ -4,28 +4,35 @@ Vercel serverless function for handling Google OAuth callbacks
 """
 
 def handler(request):
-    params = request.get("query", {})
-    code = params.get("code")
-    state = params.get("state")
-    error = params.get("error")
+    try:
+        query = request.get("query", {})
+        code = query.get("code")
+        state = query.get("state")
+        error = query.get("error")
 
-    body = "<html><body style='font-family:Arial;'>"
+        html = "<html><body style='font-family:Arial;'>"
 
-    if error:
-        body += f"<h2>OAuth Error: {error}</h2>"
-    elif not code:
-        body += "<h2>No code provided</h2>"
-    else:
-        body += f"<h2>OAuth success!</h2>"
-        body += f"<p>Code: <b>{code}</b></p>"
-        body += f"<p>State: <b>{state}</b></p>"
+        if error:
+            html += f"<h2>OAuth Error: {error}</h2>"
+        elif not code:
+            html += "<h2>No code provided</h2>"
+        else:
+            html += f"<h2>OAuth success!</h2>"
+            html += f"<p>Code: <b>{code}</b></p>"
+            html += f"<p>State: <b>{state}</b></p>"
 
-    body += "</body></html>"
+        html += "</body></html>"
 
-    return {
-        "statusCode": 200,
-        "headers": { "Content-Type": "text/html" },
-        "body": body
-    }
+        return {
+            "statusCode": 200,
+            "headers": { "Content-Type": "text/html" },
+            "body": html
+        }
+
+    except Exception as e:
+        return {
+            "statusCode": 500,
+            "body": f"Internal Server Error: {str(e)}"
+        }
 
 # This is a Vercel serverless function 
