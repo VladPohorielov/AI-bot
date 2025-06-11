@@ -1,7 +1,1 @@
-{
-  "functions": {
-    "api/oauth_callback.py": {
-      "runtime": "@vercel/python@4.0.0"
-    }
-  }
-} 
+{} 
