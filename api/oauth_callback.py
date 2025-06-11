@@ -1,12 +1,11 @@
-
 def handler(request):
     try:
-        if hasattr(request, "get"):
-            params = request.get("query", {})
-        elif isinstance(request, dict):
+        # Якщо request це dict — беремо query
+        if isinstance(request, dict):
             params = request.get("query", {})
         else:
-            params = {}
+            # Інакше — пробуємо взяти як атрибут (якщо Vercel передав special object)
+            params = getattr(request, "query", {})
 
         code = params.get("code")
         state = params.get("state")
@@ -33,5 +32,5 @@ def handler(request):
     except Exception as e:
         return {
             "statusCode": 500,
-            "body": f"Error: {str(e)}"
+            "body": f"Error in handler: {str(e)}"
         }
