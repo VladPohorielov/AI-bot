@@ -1,0 +1,180 @@
+# Telegram AI Assistant Bot - Product Requirements Document
+
+## Overview
+This project enhances an existing Telegram bot built with aiogram 3 to create a comprehensive AI assistant for students, managers, and professionals. The bot currently handles voice/audio transcription via Whisper and text summarization via GPT. The next phase adds conversation capture sessions, event extraction, and Google Calendar integration to help users organize meetings, action items, and important events from their communications.
+
+## Core Features
+
+### 1. Conversation Capture Sessions (FSM)
+- **Capture Session Management**: Users can start a capture session with `/capture_chat`, add multiple messages to the session, and end with `/end_capture`
+- **Session Storage**: All messages during a session are stored and combined into a single text for analysis
+- **State Management**: Uses aiogram 3 FSM to track user session state
+- **Session History**: Users can view past sessions with summaries
+
+### 2. Enhanced GPT Integration
+- **Conversation Analysis**: Process captured session text to extract meaningful insights
+- **Event Detection**: Identify meetings, deadlines, action items from conversations
+- **Smart Summarization**: Generate concise summaries highlighting key points and participants
+- **Structured Output**: Format extracted events with dates, times, locations, and participants
+
+### 3. Google Calendar Integration
+- **OAuth Authentication**: Secure Google Calendar connection via `/connect_calendar`
+- **Event Creation**: Automatically suggest calendar events from analyzed conversations
+- **User Confirmation**: Present events for user approval before adding to calendar
+- **Calendar Management**: Handle event creation, updates, and conflict detection
+
+### 4. Enhanced User Experience
+- **Session Management**: `/my_sessions` command to browse historical capture sessions
+- **Settings Management**: Enhanced `/settings` with calendar auto-creation toggle
+- **Confirmation Flows**: User-friendly confirmation dialogs for event creation
+- **Status Tracking**: Clear feedback on processing status and results
+
+## Technical Architecture
+
+### Backend Components
+- **aiogram 3 Framework**: Core bot framework with FSM state management
+- **OpenAI Whisper**: Audio transcription service (existing)
+- **OpenAI GPT**: Text analysis and summarization (existing + enhanced)
+- **Google Calendar API**: Event creation and management
+- **SQLite/PostgreSQL**: Session storage and user preferences
+- **OAuth 2.0**: Google authentication flow
+
+### Data Models
+```python
+# Session Model
+class CaptureSession:
+    id: int
+    user_id: int
+    start_time: datetime
+    end_time: datetime
+    messages: List[str]
+    summary: str
+    extracted_events: List[Event]
+    
+# Event Model  
+class Event:
+    title: str
+    start_datetime: datetime
+    end_datetime: datetime
+    location: str
+    participants: List[str]
+    action_items: List[str]
+    
+# User Settings
+class UserSettings:
+    user_id: int
+    auto_create_events: bool
+    google_calendar_connected: bool
+    calendar_id: str
+```
+
+### State Machine Design
+```python
+class CaptureStates(StatesGroup):
+    waiting_for_capture = State()
+    capturing = State()
+    processing = State()
+```
+
+## Development Roadmap
+
+### Phase 1: Core Session Management (MVP)
+- Implement FSM states for capture sessions
+- Create `/capture_chat` and `/end_capture` commands
+- Basic message collection and storage
+- Simple text concatenation and GPT analysis
+- Display analysis results to user
+
+### Phase 2: Enhanced Analysis & Event Extraction
+- Develop sophisticated GPT prompts for event extraction
+- Implement structured event parsing
+- Add session history storage
+- Create `/my_sessions` command with browsing capability
+- Enhanced error handling and user feedback
+
+### Phase 3: Google Calendar Integration
+- Implement Google OAuth flow with `/connect_calendar`
+- Add Calendar API integration
+- Create event confirmation workflows
+- Implement calendar event creation
+- Add user settings for auto-creation toggle
+
+### Phase 4: UX Refinements & Polish
+- Enhanced inline keyboards for confirmations
+- Improved settings menu with calendar options
+- Session management improvements
+- Performance optimizations
+- Comprehensive error handling and user guidance
+
+## Logical Dependency Chain
+
+### Foundation (Build First)
+1. **Database Models**: Session and event storage schemas
+2. **FSM States**: Core state management for capture sessions
+3. **Basic Session Flow**: `/capture_chat` → message collection → `/end_capture`
+
+### Core Functionality (Build Upon Foundation)
+4. **GPT Prompt Engineering**: Event extraction and summarization
+5. **Session Processing**: Text analysis and event parsing
+6. **Session History**: Storage and retrieval of past sessions
+
+### Integration Layer (Requires Core)
+7. **Google OAuth**: Authentication and connection management
+8. **Calendar API**: Event creation and management
+9. **Confirmation Workflows**: User approval flows for event creation
+
+### Polish Layer (Final Enhancements)
+10. **Enhanced Settings**: Calendar preferences and toggles
+11. **UI/UX Improvements**: Better keyboards and user flows
+12. **Error Handling**: Comprehensive error management
+
+## Technical Implementation Details
+
+### Required Dependencies
+```
+aiogram>=3.0.0
+openai
+google-auth
+google-auth-oauthlib
+google-auth-httplib2
+google-api-python-client
+sqlalchemy
+asyncpg (if using PostgreSQL)
+aiosqlite (if using SQLite)
+```
+
+### Key Integration Points
+- **Whisper API**: Existing voice transcription (maintain current functionality)
+- **GPT-4**: Enhanced prompts for conversation analysis and event extraction
+- **Google Calendar API v3**: Event creation and calendar management
+- **aiogram FSM**: State management for capture sessions
+
+### Security Considerations
+- OAuth 2.0 secure token storage
+- User data encryption for sensitive information
+- API key management and rate limiting
+- Session data cleanup and retention policies
+
+## Risks and Mitigations
+
+### Technical Challenges
+- **Google OAuth Complexity**: Use well-tested libraries and clear documentation
+- **Event Parsing Accuracy**: Iterative prompt engineering and testing
+- **State Management**: Thorough testing of FSM flows and edge cases
+
+### MVP Strategy
+- Start with basic session capture and simple GPT analysis
+- Add calendar integration as separate feature after core functionality works
+- Focus on single-user flows before optimization
+
+### Resource Constraints
+- Use incremental development approach
+- Prioritize core functionality over advanced features
+- Implement comprehensive error handling to prevent user frustration
+
+## Success Criteria
+- Users can successfully capture conversation sessions
+- GPT accurately extracts events and action items (>80% accuracy)
+- Google Calendar integration works seamlessly with user confirmation
+- Session history provides value for repeat usage
+- Overall user experience is intuitive and efficient 
