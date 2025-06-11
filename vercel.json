@@ -1,1 +1,9 @@
-{} 
+{
+  "version": 2,
+  "builds": [
+    { "src": "api/oauth_callback.py", "use": "@vercel/python" }
+  ],
+  "routes": [
+    { "src": "/api/oauth_callback", "dest": "/api/oauth_callback.py" }
+  ]
+} 

@@ -2,83 +2,30 @@
 """
 Vercel serverless function for handling Google OAuth callbacks
 """
-from flask import Flask, request
 
-app = Flask(__name__)
+def handler(request):
+    params = request.get("query", {})
+    code = params.get("code")
+    state = params.get("state")
+    error = params.get("error")
 
-@app.route('/', methods=['GET'])
-def handler():
-    """Handle OAuth callback from Google"""
-    
-    # Get parameters from request
-    code = request.args.get('code')
-    state = request.args.get('state')
-    error = request.args.get('error')
-    
-    # Build HTML response
-    body = "<html><body style='font-family:Arial; text-align:center; padding:50px;'>"
+    body = "<html><body style='font-family:Arial;'>"
 
     if error:
-        body += f"<h2>❌ OAuth Error: {error}</h2>"
-        body += "<p>Спробуйте ще раз або зверніться до підтримки.</p>"
-        body += "<a href='https://t.me/briefly_calendar_bot'>← Повернутись до бота</a>"
+        body += f"<h2>OAuth Error: {error}</h2>"
     elif not code:
-        body += "<h2>❌ No code provided</h2>"
-        body += "<p>Відсутні необхідні параметри авторизації.</p>"
-        body += "<a href='https://t.me/briefly_calendar_bot'>← Повернутись до бота</a>"
+        body += "<h2>No code provided</h2>"
     else:
-        body += "<h2>✅ OAuth success!</h2>"
-        body += f"<p><strong>Code:</strong> <code>{code[:20]}...</code></p>"
-        if state:
-            body += f"<p><strong>State:</strong> <code>{state}</code></p>"
-        
-        body += """
-        <div style='background:#f0f8ff; padding:20px; margin:20px 0; border-radius:10px;'>
-            <h3>📋 Наступні кроки:</h3>
-            <ol style='text-align:left; display:inline-block;'>
-                <li>Поверніться до Telegram бота</li>
-                <li>Надішліть цей код боту</li>
-                <li>Або скористайтесь командою /connect_calendar</li>
-            </ol>
-        </div>
-        """
-        
-        body += """
-        <a href='https://t.me/briefly_calendar_bot' style='
-            background:#007bff; color:white; padding:10px 20px; 
-            text-decoration:none; border-radius:5px; display:inline-block; margin:10px;
-        '>🤖 Повернутись до бота</a>
-        """
-        
-        body += f"""
-        <button onclick='copyCode()' style='
-            background:#28a745; color:white; border:none; 
-            padding:8px 16px; border-radius:3px; cursor:pointer; margin:10px;
-        '>📋 Копіювати код</button>
-        
-        <script>
-            function copyCode() {{
-                navigator.clipboard.writeText('{code}').then(() => {{
-                    alert('Код скопійовано!');
-                }}).catch(() => {{
-                    const textArea = document.createElement('textarea');
-                    textArea.value = '{code}';
-                    document.body.appendChild(textArea);
-                    textArea.select();
-                    document.execCommand('copy');
-                    document.body.removeChild(textArea);
-                    alert('Код скопійовано!');
-                }});
-            }}
-            
-            // Auto close after 5 seconds
-            setTimeout(() => {{ window.close(); }}, 5000);
-        </script>
-        
-        <p><small>Це вікно автоматично закриється через 5 секунд</small></p>
-        """
+        body += f"<h2>OAuth success!</h2>"
+        body += f"<p>Code: <b>{code}</b></p>"
+        body += f"<p>State: <b>{state}</b></p>"
 
     body += "</body></html>"
-    return body
+
+    return {
+        "statusCode": 200,
+        "headers": { "Content-Type": "text/html" },
+        "body": body
+    }
 
 # This is a Vercel serverless function 
