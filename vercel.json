@@ -1,22 +1,7 @@
 {
-  "version": 2,
-  "builds": [
-    { 
-      "src": "api/oauth_callback.py", 
-      "use": "@vercel/python" 
+  "functions": {
+    "api/oauth_callback.py": {
+      "runtime": "python3.9"
     }
-  ],
-  "routes": [
-    { 
-      "src": "/api/oauth_callback", 
-      "dest": "/api/oauth_callback.py" 
-    },
-    { 
-      "src": "/oauth/callback", 
-      "dest": "/api/oauth_callback.py" 
-    }
-  ],
-  "env": {
-    "PYTHON_PATH": "."
   }
 } 

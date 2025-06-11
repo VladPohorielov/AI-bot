@@ -2,16 +2,19 @@
 """
 Vercel serverless function for handling Google OAuth callbacks
 """
+from flask import Flask, request
 
-def handler(request):
-    """Vercel serverless function for handling Google OAuth callbacks"""
+app = Flask(__name__)
+
+@app.route('/', methods=['GET'])
+def handler():
+    """Handle OAuth callback from Google"""
     
-    # Get query parameters from request
-    params = request.get("query", {})
-    code = params.get("code")
-    state = params.get("state") 
-    error = params.get("error")
-
+    # Get parameters from request
+    code = request.args.get('code')
+    state = request.args.get('state')
+    error = request.args.get('error')
+    
     # Build HTML response
     body = "<html><body style='font-family:Arial; text-align:center; padding:50px;'>"
 
@@ -76,11 +79,6 @@ def handler(request):
         """
 
     body += "</body></html>"
-
-    return {
-        "statusCode": 200,
-        "headers": { "Content-Type": "text/html; charset=utf-8" },
-        "body": body
-    }
+    return body
 
 # This is a Vercel serverless function 
